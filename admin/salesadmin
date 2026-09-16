@@ -1,12 +1,71 @@
+// ===== PRODUCT SALES ANALYSIS MODULE (EMPTY STATE) =====
+
+// example database
+const productSalesData = [
+  { id: "P01", name: "Spanish Latte", category: "Espresso", unitsSold: 0 },
+  { id: "P02", name: "Americano", category: "Espresso", unitsSold: 0 },
+  { id: "P03", name: "Matcha Latte", category: "Non-Coffee", unitsSold: 0 },
+  { id: "P04", name: "Caramel Macchiato", category: "Espresso", unitsSold: 0 },
+  { id: "P05", name: "Oat Milk Latte", category: "Specialty", unitsSold: 0 }
+];
+
 export function initProductSalesAnalysis() {
   const adminProductSalesTab = document.getElementById("adminProductSalesTab");
   const showProductSalesTabButton = document.getElementById("showProductSalesTabButton");
+
+  // DOM Elements
+  const topProductDisplay = document.getElementById("topProductDisplay");
+  const totalUnitsDisplay = document.getElementById("totalUnitsDisplay");
+  const productSalesTableBody = document.getElementById("productSalesTableBody");
+
+  function renderProductAnalysis() {
+    if (!productSalesTableBody) return;
+
+    // 1. Calculate Total Volume
+    const totalUnits = productSalesData.reduce((sum, item) => sum + item.unitsSold, 0);
+
+    // 2. Check for zero sales condition
+    if (totalUnits === 0) {
+      if (topProductDisplay) topProductDisplay.innerText = "No sales recorded yet";
+      if (totalUnitsDisplay) totalUnitsDisplay.innerText = "0 items";
+
+      productSalesTableBody.innerHTML = `
+        <tr>
+          <td colspan="4" style="text-align: center; color: #777; padding: 12px;">
+            <em>No customer transactions recorded for today.</em>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    // 3. Render Active Sales Data (Triggers automatically once items are sold)
+    const topProduct = productSalesData.reduce((prev, current) =>
+      prev.unitsSold > current.unitsSold ? prev : current
+    );
+
+    if (topProductDisplay) topProductDisplay.innerText = `${topProduct.name} (${topProduct.unitsSold} units)`;
+    if (totalUnitsDisplay) totalUnitsDisplay.innerText = `${totalUnits} items`;
+
+    productSalesTableBody.innerHTML = productSalesData
+      .map(
+        (item) => `
+        <tr>
+          <td>${item.id}</td>
+          <td><strong>${item.name}</strong></td>
+          <td>${item.category}</td>
+          <td>${item.unitsSold} units</td>
+        </tr>
+      `
+      )
+      .join("");
+  }
 
   return {
     tab: adminProductSalesTab,
     button: showProductSalesTabButton,
     init: () => {
-      // Add top-selling drink metrics or item breakdown logic here
+      renderProductAnalysis();
     }
   };
 }
