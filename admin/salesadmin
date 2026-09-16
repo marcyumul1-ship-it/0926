@@ -1,0 +1,12 @@
+export function initProductSalesAnalysis() {
+  const adminProductSalesTab = document.getElementById("adminProductSalesTab");
+  const showProductSalesTabButton = document.getElementById("showProductSalesTabButton");
+
+  return {
+    tab: adminProductSalesTab,
+    button: showProductSalesTabButton,
+    init: () => {
+      // Add top-selling drink metrics or item breakdown logic here
+    }
+  };
+}
