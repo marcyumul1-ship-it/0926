@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>POS System - Modules 1, 2 & 3</title>
+</head>
+<body>
+
+
+    <h2>: Authentication & Role Access</h2>
+
+    <div>
+        <p>
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="">
+        </p>
+        <p>
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="">
+        </p>
+        <button type="button">Log In</button>
+        <button type="button">Log Out</button>
+    </div>
+
+    <h3>Authentication Logs</h3>
+    <p>System Status: <strong>[Not Authenticated]</strong></p>
+    <p>Audit Record: <code>[No Login Event Recorded]</code></p>
+
+    <hr>
+
+    <h2>: Order Selection, Customization & Modifiers</h2>
+
+    <p>
+        <label for="drink-select">Select Drink Base:</label>
+        <select id="drink-select">
+            <option>-- Select Drink --</option>
+        </select>
+    </p>
+
+    <p>
+        <label for="temperature">Temperature:</label>
+        <select id="temperature">
+            <option>-- Select Temp --</option>
+        </select>
+
+        <label for="size">Size:</label>
+        <select id="size">
+            <option>-- Select Size --</option>
+        </select>
+    </p>
+
+    <h3>Add-ons & Modifiers</h3>
+    <p>
+        <label for="milk">Milk Substitution:</label>
+        <select id="milk">
+            <option>-- Select Milk Option --</option>
+        </select>
+    </p>
+
+    <p>
+        <label for="addon">Toppings / Syrups:</label>
+        <select id="addon">
+            <option>-- Select Modifier --</option>
+        </select>
+    </p>
+
+    <div>
+        <button type="button">Add Item to Order</button>
+        <button type="button">Clear Selection</button>
+    </div>
+
+    <br>
+
+    <h3>Payment & Cash Calculations</h3>
+    <p>
+        <label for="cash">Cash Tendered (₱):</label>
+        <input type="number" id="cash" value="">
+    </p>
+    <div>
+        <button type="button">Calculate Total</button>
+        <button type="button">Complete Checkout</button>
+        <button type="button">Cancel Order</button>
+    </div>
+
+    <hr>
+
+    <!-- TERMINAL OUTPUTS -->
+    <h2>System Outputs</h2>
+
+    <h3>Terminal Display Screen</h3>
+    <p></p>
+    <p>-------------------------------------</p>
+    <p>TOTAL DUE: <strong></strong> | CASH: <strong></strong> | CHANGE: <strong></strong></p>
+
+    <br>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+        <tr>
+            <td valign="top" width="50%">
+                <strong>Customer Receipt Printout</strong>
+                <pre>
+
+
+
+
+                </pre>
+            </td>
+            <td valign="top" width="50%">
+                <strong>Barista Display Unit (Module 3 Output)</strong>
+                <pre>
+
+
+
+
+                </pre>
+            </td>
+        </tr>
+    </table>
+
+    <br>
+    <p><button type="button">Print Receipt</button></p>
+
+</body>
+</html>
