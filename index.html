@@ -3,49 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <title>POS System - Modules 1, 2 & 3</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        hr { margin: 20px 0; }
+        pre { background: #f4f4f4; padding: 10px; min-height: 100px; }
+    </style>
 </head>
 <body>
 
-
-    <h2>: Authentication & Role Access</h2>
+    <!-- MODULE 1: AUTHENTICATION & ROLE ACCESS -->
+    <h2>Module 1: Authentication & Role Access</h2>
 
     <div>
         <p>
             <label for="username">Username:</label>
-            <input type="text" id="username" value="">
+            <input type="text" id="username" value="admin">
         </p>
         <p>
             <label for="password">Password:</label>
-            <input type="password" id="password" value="">
+            <input type="password" id="password" value="1234">
         </p>
-        <button type="button">Log In</button>
-        <button type="button">Log Out</button>
+        <button type="button" id="btn-login">Log In</button>
+        <button type="button" id="btn-logout">Log Out</button>
     </div>
 
     <h3>Authentication Logs</h3>
-    <p>System Status: <strong>[Not Authenticated]</strong></p>
-    <p>Audit Record: <code>[No Login Event Recorded]</code></p>
+    <p>System Status: <strong id="sys-status">[Not Authenticated]</strong></p>
+    <p>Audit Record: <code id="audit-record">[No Login Event Recorded]</code></p>
 
     <hr>
 
-    <h2>: Order Selection, Customization & Modifiers</h2>
+    <!-- MODULE 2 & MODULE 3: REAL-TIME CHECKOUT & MODIFIERS -->
+    <h2>Module 2 & 3: Order Selection, Customization & Modifiers</h2>
 
     <p>
         <label for="drink-select">Select Drink Base:</label>
         <select id="drink-select">
-            <option>-- Select Drink --</option>
+            <option value="">-- Select Drink --</option>
         </select>
     </p>
 
     <p>
         <label for="temperature">Temperature:</label>
         <select id="temperature">
-            <option>-- Select Temp --</option>
+            <option value="">-- Select Temp --</option>
         </select>
 
         <label for="size">Size:</label>
         <select id="size">
-            <option>-- Select Size --</option>
+            <option value="">-- Select Size --</option>
         </select>
     </p>
 
@@ -53,20 +59,20 @@
     <p>
         <label for="milk">Milk Substitution:</label>
         <select id="milk">
-            <option>-- Select Milk Option --</option>
+            <option value="">-- Select Milk Option --</option>
         </select>
     </p>
 
     <p>
         <label for="addon">Toppings / Syrups:</label>
         <select id="addon">
-            <option>-- Select Modifier --</option>
+            <option value="">-- Select Modifier --</option>
         </select>
     </p>
 
     <div>
-        <button type="button">Add Item to Order</button>
-        <button type="button">Clear Selection</button>
+        <button type="button" id="btn-add-item">Add Item to Order</button>
+        <button type="button" id="btn-clear-selection">Clear Selection</button>
     </div>
 
     <br>
@@ -74,12 +80,12 @@
     <h3>Payment & Cash Calculations</h3>
     <p>
         <label for="cash">Cash Tendered (₱):</label>
-        <input type="number" id="cash" value="">
+        <input type="number" id="cash" value="" min="0" step="0.01">
     </p>
     <div>
-        <button type="button">Calculate Total</button>
-        <button type="button">Complete Checkout</button>
-        <button type="button">Cancel Order</button>
+        <button type="button" id="btn-calc-total">Calculate Total</button>
+        <button type="button" id="btn-checkout">Complete Checkout</button>
+        <button type="button" id="btn-cancel-order">Cancel Order</button>
     </div>
 
     <hr>
@@ -88,37 +94,239 @@
     <h2>System Outputs</h2>
 
     <h3>Terminal Display Screen</h3>
-    <p></p>
+    <p id="terminal-items">No items added yet.</p>
     <p>-------------------------------------</p>
-    <p>TOTAL DUE: <strong></strong> | CASH: <strong></strong> | CHANGE: <strong></strong></p>
+    <p>TOTAL DUE: <strong id="disp-total">₱0.00</strong> | CASH: <strong id="disp-cash">₱0.00</strong> | CHANGE: <strong id="disp-change">₱0.00</strong></p>
 
     <br>
 
-    <table border="1" cellpadding="6" cellspacing="0">
+    <table border="1" cellpadding="6" cellspacing="0" width="100%">
         <tr>
             <td valign="top" width="50%">
                 <strong>Customer Receipt Printout</strong>
-                <pre>
-
-
-
-
-                </pre>
+                <pre id="receipt-out">[No Receipt Generated]</pre>
             </td>
             <td valign="top" width="50%">
                 <strong>Barista Display Unit (Module 3 Output)</strong>
-                <pre>
-
-
-
-
-                </pre>
+                <pre id="barista-out">[No Active Orders]</pre>
             </td>
         </tr>
     </table>
 
     <br>
-    <p><button type="button">Print Receipt</button></p>
+    <p><button type="button" id="btn-print">Print Receipt</button></p>
 
+    <script>
+        // System Data Definitions
+        const drinks = [
+            { id: "espresso", name: "Espresso", price: 100 },
+            { id: "latte", name: "Caffè Latte", price: 130 },
+            { id: "americano", name: "Americano", price: 110 }
+        ];
+
+        const temperatures = ["Hot", "Iced"];
+        
+        const sizes = [
+            { name: "Regular", extra: 0 },
+            { name: "Large", extra: 20 }
+        ];
+
+        const milks = [
+            { name: "Whole Milk", extra: 0 },
+            { name: "Oat Milk", extra: 30 },
+            { name: "Almond Milk", extra: 30 }
+        ];
+
+        const addons = [
+            { name: "None", extra: 0 },
+            { name: "Extra Espresso Shot", extra: 25 },
+            { name: "Caramel Syrup", extra: 15 },
+            { name: "Whipped Cream", extra: 15 }
+        ];
+
+        // System State
+        let currentUser = null;
+        let orderCart = [];
+
+        // Element References
+        const drinkSelect = document.getElementById('drink-select');
+        const tempSelect = document.getElementById('temperature');
+        const sizeSelect = document.getElementById('size');
+        const milkSelect = document.getElementById('milk');
+        const addonSelect = document.getElementById('addon');
+
+        // Populate Dropdowns
+        function populateOptions() {
+            drinks.forEach(d => drinkSelect.add(new Option(`${d.name} (₱${d.price})`, d.id)));
+            temperatures.forEach(t => tempSelect.add(new Option(t, t)));
+            sizes.forEach(s => sizeSelect.add(new Option(`${s.name} (+₱${s.extra})`, s.name)));
+            milks.forEach(m => milkSelect.add(new Option(`${m.name} (+₱${m.extra})`, m.name)));
+            addons.forEach(a => addonSelect.add(new Option(`${a.name} (+₱${a.extra})`, a.name)));
+        }
+
+        // Module 1: Auth Handlers
+        document.getElementById('btn-login').addEventListener('click', () => {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            if (u === "admin" && p === "1234") {
+                currentUser = u;
+                document.getElementById('sys-status').innerText = `[Authenticated as ${u}]`;
+                document.getElementById('audit-record').innerText = `[Login Successful: ${new Date().toLocaleTimeString()}]`;
+            } else {
+                alert("Invalid username or password!");
+            }
+        });
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            currentUser = null;
+            document.getElementById('sys-status').innerText = "[Not Authenticated]";
+            document.getElementById('audit-record').innerText = `[Logout Event: ${new Date().toLocaleTimeString()}]`;
+        });
+
+        // Module 2 & 3: Order Selection & Item Addition
+        document.getElementById('btn-add-item').addEventListener('click', () => {
+            if (!currentUser) {
+                alert("Please log in first!");
+                return;
+            }
+
+            const selectedDrink = drinks.find(d => d.id === drinkSelect.value);
+            const temp = tempSelect.value;
+            const sizeObj = sizes.find(s => s.name === sizeSelect.value);
+            const milkObj = milks.find(m => m.name === milkSelect.value);
+            const addonObj = addons.find(a => a.name === addonSelect.value);
+
+            if (!selectedDrink || !temp || !sizeObj || !milkObj || !addonObj) {
+                alert("Please complete all drink selections.");
+                return;
+            }
+
+            const itemPrice = selectedDrink.price + sizeObj.extra + milkObj.extra + addonObj.extra;
+            
+            const item = {
+                name: selectedDrink.name,
+                temp: temp,
+                size: sizeObj.name,
+                milk: milkObj.name,
+                addon: addonObj.name,
+                price: itemPrice
+            };
+
+            orderCart.push(item);
+            updateDisplays();
+            clearSelectionForm();
+        });
+
+        document.getElementById('btn-clear-selection').addEventListener('click', clearSelectionForm);
+
+        function clearSelectionForm() {
+            drinkSelect.selectedIndex = 0;
+            tempSelect.selectedIndex = 0;
+            sizeSelect.selectedIndex = 0;
+            milkSelect.selectedIndex = 0;
+            addonSelect.selectedIndex = 0;
+        }
+
+        // Calculations & Outputs
+        function calculateTotalSum() {
+            return orderCart.reduce((sum, item) => sum + item.price, 0);
+        }
+
+        function updateDisplays() {
+            const total = calculateTotalSum();
+            
+            // Terminal Display
+            if (orderCart.length === 0) {
+                document.getElementById('terminal-items').innerText = "No items added yet.";
+            } else {
+                document.getElementById('terminal-items').innerHTML = orderCart.map((item, idx) => 
+                    `${idx + 1}. ${item.temp} ${item.size} ${item.name} (${item.milk}, ${item.addon}) - ₱${item.price.toFixed(2)}`
+                ).join('<br>');
+            }
+
+            document.getElementById('disp-total').innerText = `₱${total.toFixed(2)}`;
+
+            // Barista Display Unit
+            if (orderCart.length === 0) {
+                document.getElementById('barista-out').innerText = "[No Active Orders]";
+            } else {
+                let baristaText = "--- QUEUE TICKETS ---\n";
+                orderCart.forEach((item, idx) => {
+                    baristaText += `Item #${idx + 1}: ${item.temp} ${item.name} (${item.size})\n`;
+                    baristaText += `  - Milk: ${item.milk}\n`;
+                    baristaText += `  - Modifier: ${item.addon}\n\n`;
+                });
+                document.getElementById('barista-out').innerText = baristaText;
+            }
+        }
+
+        document.getElementById('btn-calc-total').addEventListener('click', () => {
+            const total = calculateTotalSum();
+            const cash = parseFloat(document.getElementById('cash').value) || 0;
+            const change = cash - total;
+
+            document.getElementById('disp-cash').innerText = `₱${cash.toFixed(2)}`;
+            document.getElementById('disp-change').innerText = `₱${(change >= 0 ? change : 0).toFixed(2)}`;
+        });
+
+        document.getElementById('btn-checkout').addEventListener('click', () => {
+            const total = calculateTotalSum();
+            const cash = parseFloat(document.getElementById('cash').value) || 0;
+
+            if (orderCart.length === 0) {
+                alert("Order cart is empty.");
+                return;
+            }
+
+            if (cash < total) {
+                alert("Insufficient cash tendered.");
+                return;
+            }
+
+            const change = cash - total;
+
+            // Generate Customer Receipt
+            let receipt = "===== COFFEE SHOP RECEIPT =====\n";
+            receipt += `Cashier: ${currentUser}\n`;
+            receipt += `Date: ${new Date().toLocaleString()}\n`;
+            receipt += "-------------------------------\n";
+            orderCart.forEach(item => {
+                receipt += `${item.temp} ${item.name} (${item.size})\n`;
+                receipt += `  + ${item.milk}, ${item.addon} : ₱${item.price.toFixed(2)}\n`;
+            });
+            receipt += "-------------------------------\n";
+            receipt += `TOTAL DUE: ₱${total.toFixed(2)}\n`;
+            receipt += `CASH: ₱${cash.toFixed(2)}\n`;
+            receipt += `CHANGE: ₱${change.toFixed(2)}\n`;
+            receipt += "===============================\n";
+            receipt += "Thank you for your purchase!";
+
+            document.getElementById('receipt-out').innerText = receipt;
+            document.getElementById('disp-cash').innerText = `₱${cash.toFixed(2)}`;
+            document.getElementById('disp-change').innerText = `₱${change.toFixed(2)}`;
+        });
+
+        document.getElementById('btn-cancel-order').addEventListener('click', () => {
+            orderCart = [];
+            document.getElementById('cash').value = '';
+            document.getElementById('disp-cash').innerText = '₱0.00';
+            document.getElementById('disp-change').innerText = '₱0.00';
+            document.getElementById('receipt-out').innerText = '[No Receipt Generated]';
+            updateDisplays();
+        });
+
+        document.getElementById('btn-print').addEventListener('click', () => {
+            const receiptText = document.getElementById('receipt-out').innerText;
+            if (receiptText === '[No Receipt Generated]') {
+                alert('No receipt available to print.');
+                return;
+            }
+            window.print();
+        });
+
+        // Initialize On Load
+        populateOptions();
+    </script>
 </body>
 </html>
