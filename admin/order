@@ -1,12 +1,102 @@
+// ===== ADMIN ORDER QUEUE TAB MODULE =====
+
+// Mock Database for order
+const orderQueueData = [
+  {
+    orderId: "ORD-1001",
+    customer: "Walk-in Customer",
+    items: ["Spanish Latte (Iced/Large)", "Oat Milk"],
+    time: "10:15 AM",
+    status: "Pending" // Options: Pending, Preparing, Ready
+  },
+  {
+    orderId: "ORD-1002",
+    customer: "Maria S.",
+    items: ["Americano (Hot/Regular)"],
+    time: "10:22 AM",
+    status: "Preparing"
+  }
+];
+
 export function initOrderQueueTab() {
   const adminQueueTab = document.getElementById("adminQueueTab");
   const showQueueTabButton = document.getElementById("showQueueTabButton");
 
+  // dom elements inside the Queue Tab
+  const queueTableBody = document.getElementById("queueTableBody");
+  const pendingOrdersCount = document.getElementById("pendingOrdersCount");
+
+  function renderQueue() {
+    if (!queueTableBody) return;
+
+    // 1. Calculate Active Pending/Preparing Orders
+    const activeCount = orderQueueData.filter((o) => o.status !== "Completed").length;
+    if (pendingOrdersCount) {
+      pendingOrdersCount.innerText = `${activeCount} Active Orders`;
+    }
+
+    // 2. Empty State Handling
+    if (orderQueueData.length === 0) {
+      queueTableBody.innerHTML = `
+        <tr>
+          <td colspan="5" style="text-align: center; color: #777; padding: 12px;">
+            <em>No active orders in the queue.</em>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    // 3. Render Order Queue Rows
+    queueTableBody.innerHTML = orderQueueData
+      .map(
+        (order, index) => `
+        <tr>
+          <td><strong>${order.orderId}</strong></td>
+          <td>${order.customer}</td>
+          <td>${order.items.join(", ")}</td>
+          <td>${order.time}</td>
+          <td>
+            <button type="button" class="status-btn" data-index="${index}">
+              ${order.status}
+            </button>
+          </td>
+        </tr>
+      `
+      )
+      .join("");
+
+    // 4. Attach Event Listeners to Status Toggle Buttons
+    const buttons = queueTableBody.querySelectorAll(".status-btn");
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const idx = e.target.getAttribute("data-index");
+        toggleOrderStatus(idx);
+      });
+    });
+  }
+
+  // Cycle through order statuses: Pending -> Preparing -> Ready -> Completed
+  function toggleOrderStatus(index) {
+    const currentStatus = orderQueueData[index].status;
+
+    if (currentStatus === "Pending") {
+      orderQueueData[index].status = "Preparing";
+    } else if (currentStatus === "Preparing") {
+      orderQueueData[index].status = "Ready";
+    } else if (currentStatus === "Ready") {
+      // Remove completed order from active queue
+      orderQueueData.splice(index, 1);
+    }
+
+    renderQueue();
+  }
+
   return {
-   tab: adminQueueTab,
-   button: showQueueTabButton,
-   init: () => {
-  // Add order queue refresh or state handlers here
+    tab: adminQueueTab,
+    button: showQueueTabButton,
+    init: () => {
+      renderQueue();
     }
   };
 }
