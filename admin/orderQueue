@@ -1,0 +1,12 @@
+export function initOrderQueueTab() {
+  const adminQueueTab = document.getElementById("adminQueueTab");
+  const showQueueTabButton = document.getElementById("showQueueTabButton");
+
+  return {
+   tab: adminQueueTab,
+   button: showQueueTabButton,
+   init: () => {
+  // Add order queue refresh or state handlers here
+    }
+  };
+}
