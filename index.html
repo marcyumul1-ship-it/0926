@@ -47,7 +47,6 @@
         button { background: var(--primary); border: none; padding: 10px 16px; font-weight: bold; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-size: 0.9rem; }
         button:hover { background: var(--accent); transform: translateY(-1px); }
         
-        /* POS Layout Enhancements */
         .pos-grid-3col { display: grid; grid-template-columns: 1.3fr 1fr 0.9fr; gap: 20px; height: calc(100% - 45px); box-sizing: border-box; }
         
         .catalog-panel { background: #fafbfc; border: 1px solid #edf2f7; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; height: 100%; box-sizing: border-box; overflow: hidden; }
@@ -142,8 +141,8 @@
                 
                 <label style="text-align: left; font-size: 0.8rem; font-weight: bold; display: block;">Assign Role:</label>
                 <select id="signupRole">
-                    <option value="Staff">Barista / Staff</option>
-                    <option value="Admin">Administrator (Manager)</option>
+                    <option value="Staff">Barista / Staff (Limit: 3)</option>
+                    <option value="Admin">Administrator (Limit: 1)</option>
                 </select>
 
                 <label style="text-align: left; font-size: 0.8rem; font-weight: bold; display: block;">Create PIN / Password:</label>
@@ -326,7 +325,7 @@
 
             <!-- ADMIN ACCOUNT MANAGEMENT SECTION -->
             <div id="adminAccountManager" class="admin-section-box" style="display:none;">
-                <h3>Registered Accounts Management (Delete Accounts)</h3>
+                <h3>Registered Accounts Management (Limit: 1 Admin, 3 Staff)</h3>
                 <div style="font-size: 0.8rem; color: #666; margin-bottom: 8px;">View all active registered system accounts and remove unauthorized or old staff accounts.</div>
                 <div id="adminAccountsListContainer" style="max-height: 180px; overflow-y: auto; border-top: 1px solid #eee;"></div>
             </div>
@@ -394,7 +393,6 @@
     let currentUserName = "";
     let currentUserRole = "";
 
-    // Initialize login dropdown upon load
     window.onload = function() {
         populateLoginDropdown();
     };
@@ -430,6 +428,19 @@
 
         if (!username || !pass) {
             alert("Please fill out all fields to sign up.");
+            return;
+        }
+
+        // Check limits: 1 Admin max, 3 Staff max
+        let adminCount = registeredUsers.filter(u => u.role === "Admin").length;
+        let staffCount = registeredUsers.filter(u => u.role === "Staff").length;
+
+        if (role === "Admin" && adminCount >= 1) {
+            alert("Account limit reached! Only 1 Administrator account is allowed.");
+            return;
+        }
+        if (role === "Staff" && staffCount >= 3) {
+            alert("Account limit reached! Only up to 3 Staff accounts are allowed.");
             return;
         }
 
